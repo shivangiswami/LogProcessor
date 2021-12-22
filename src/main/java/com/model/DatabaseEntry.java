@@ -25,4 +25,14 @@ public class DatabaseEntry {
                 ", alert=" + alert +
                 '}';
     }
+
+    public String toFormatedString() {
+        return "{" +
+                "id='" + id + '\'' +
+                ", duration=" + duration +
+                ", type='" + type + '\'' +
+                ", host='" + host + '\'' +
+                ", alert=" + alert +
+                '}';
+    }
 }

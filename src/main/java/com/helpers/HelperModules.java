@@ -1,16 +1,22 @@
 package com.helpers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.processor.LogProcessor;
+import org.apache.log4j.Logger;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class HelperModules {
     private static final ObjectMapper objectMapper = new ObjectMapper();
-
+    private static final org.apache.log4j.Logger log = Logger.getLogger(HelperModules.class);
     public static ObjectMapper getObjectMapper(){
         return objectMapper;
     }
+
 
     public static void initDataBase(){
 
@@ -21,16 +27,28 @@ public class HelperModules {
             //Registering the HSQLDB JDBC driver
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
             //Creating the connection with HSQLDB
-            con = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/logdb", "Shivangi", "");
+            con = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost:9111/logdb", "Shivangi", "");
             if (con!= null){
-                System.out.println("Connection created successfully");
+                log.info("Connection created successfully");
 
             }else{
-                System.out.println("Problem with creating connection");
+                log.info("Problem with creating connection");
             }
 
         }  catch (Exception e) {
             e.printStackTrace(System.out);
         }
     }
+
+
+        public static void writeInFile(String data, FileWriter writer) {
+                try {
+                    writer.write(data);
+                    writer.write('\n');
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+        }
 }
+

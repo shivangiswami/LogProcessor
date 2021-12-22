@@ -5,19 +5,22 @@ import com.helpers.HelperModules;
 import com.model.DatabaseEntry;
 import com.model.Row;
 import com.model.State;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import org.testng.annotations.Test;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 
 public class LogProcessor {
-    public static void main(String args[]){
-        System.out.println("Started log processing");
-        // HelperModules.initDataBase();
+    private static final org.apache.log4j.Logger log = Logger.getLogger(LogProcessor.class);
+    @Test
+    public void analyzeLogs(){
+        BasicConfigurator.configure();
+        log.info("Started log processing");
+        //HelperModules.initDataBase();
         LogProcessor processor = new LogProcessor();
-        processor.process("C:\\Users\\Ashish\\Desktop\\test.txt");
+        processor.process("src/main/resources/test.txt");
     }
 
     private void process(String filePath){
@@ -28,6 +31,7 @@ public class LogProcessor {
             HashMap<String, Row> entries = new HashMap<>();
             ObjectMapper objectMapper = HelperModules.getObjectMapper();
             int count = 0;
+            FileWriter writer = new FileWriter("src/main/resources/output.txt");
             while((line = br.readLine()) != null){
                 Row row = objectMapper.readValue(line, Row.class);
                 if(!entries.containsKey(row.getId())){
@@ -48,22 +52,24 @@ public class LogProcessor {
                     }
                     row.setTimestamp(null); // not a needed field anymore
                     entries.remove(row.getId()); // removing from map as not needed to store in memory
-                    store(row);
+                    store(row, writer);
                 }
                 count++;
             }
-            System.out.println("Processed " + count + " rows and final data size is : " + entries.size());
+            log.info("Processed " + count + " rows and final data size is : " + entries.size());
+            writer.close();
         } catch (FileNotFoundException e) {
-            System.out.println("Log processing finished with some exception. " + e.getLocalizedMessage());
+            log.info("Log processing finished with some exception. " + e.getLocalizedMessage());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void store(Row row){
+    private void store(Row row, FileWriter writer){
         Long duration = row.getEndTime() - row.getStartTime();
         Boolean alert = duration > 4 ? true : false;
         DatabaseEntry dbEntry = new DatabaseEntry(row.getId(), duration, row.getType(), row.getHost(), alert);
-        System.out.println(dbEntry.toString());
+        log.info(dbEntry.toString());
+        HelperModules.writeInFile(dbEntry.toFormatedString(), writer);
     }
 }
