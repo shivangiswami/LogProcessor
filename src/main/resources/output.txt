@@ -1,0 +1,2 @@
+{id='10000', duration=6, type='APPLICATION_LOG', host='23456', alert=true}
+{id='10001', duration=3, type='null', host='null', alert=false}
